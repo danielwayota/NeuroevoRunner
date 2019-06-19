@@ -10,9 +10,20 @@ public class WallSpawner : MonoBehaviour
     [Header("Anchor points")]
     public Transform wallsHolder;
 
+    [Header("Spawn timers")]
     public float spawnTime = 1f;
+    public float minSpawnTime = 1f;
+    public float spawnTimeReductionPercentage = 0.05f;
 
     private float time = 0f;
+
+    private int lastRandomSpawnIndex = -1;
+
+    // ========================================
+    void Start()
+    {
+        this.time = this.spawnTime;    
+    }
 
     // ========================================
     void Update()
@@ -31,7 +42,12 @@ public class WallSpawner : MonoBehaviour
     // ========================================
     Vector3 GetRandomSpawnPoint()
     {
-        int index = Random.Range(0, this.spawnPoints.Length);
+        int index = this.lastRandomSpawnIndex;
+        while(index == this.lastRandomSpawnIndex)
+        {
+            index = Random.Range(0, this.spawnPoints.Length);
+        }
+        this.lastRandomSpawnIndex = index;
         var pointTransfom = this.spawnPoints[index];
 
         return pointTransfom.position;
@@ -47,10 +63,14 @@ public class WallSpawner : MonoBehaviour
     // ========================================
     public void Restart()
     {
-        this.time = 0;
+        this.time = this.spawnTime;
         for (int i = 0; i < this.wallsHolder.childCount; i++)
         {
             Destroy(this.wallsHolder.GetChild(i).gameObject);
         }
+
+        this.spawnTime = this.spawnTime - (this.spawnTime * this.spawnTimeReductionPercentage);
+
+        this.spawnTime = Mathf.Max(this.spawnTime, this.minSpawnTime);
     }
 }

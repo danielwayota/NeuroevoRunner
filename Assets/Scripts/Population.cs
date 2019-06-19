@@ -4,7 +4,8 @@ using UnityEngine;
 public class Population : MonoBehaviour
 {
     [Header("Stuff")]
-    private WallSpawner wallSpawner;
+    public WallSpawner wallSpawner;
+    public GenerationPanel genPanel;
 
     [Header("Runners stuff")]
     public GameObject runnerPrefab;
@@ -39,7 +40,7 @@ public class Population : MonoBehaviour
             this.runnerPopulation[i] = e.GetComponent<Runner>();
         }
         this.currentGeneration = 1;
-        // this.statusWindow.SetGenerationNumber(this.currentGeneration);
+        this.genPanel.SetGenerationNumber(this.currentGeneration);
     }
 
     // ========================================================
@@ -87,7 +88,7 @@ public class Population : MonoBehaviour
     {
         this.wallSpawner.Restart();
         this.currentGeneration++;
-        // this.statusWindow.SetGenerationNumber(this.currentGeneration);
+        this.genPanel.SetGenerationNumber(this.currentGeneration);
 
         // Generate new population
         Genome[] newGenomes = new Genome[this.populationSize];

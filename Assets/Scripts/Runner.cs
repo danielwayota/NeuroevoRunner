@@ -9,6 +9,9 @@ public class Runner : MonoBehaviour
 {
     public float movementSpeed = 1f;
     public float fovInDegrees = 10f;
+    public float viewDistance = 10f;
+
+    public LayerMask wallsLayer;
 
     public float aliveTime
     {
@@ -107,7 +110,7 @@ public class Runner : MonoBehaviour
         {
             float angle = baseAngle + (this.fov * i);
 
-            Vector3 raydirection = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
+            Vector3 raydirection = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
 
             RaycastHit hit;
             // 'see' is the way to indicate the type of object the eye is seeing
@@ -120,7 +123,7 @@ public class Runner : MonoBehaviour
             float seeX = 0;
             float seeZ = 0;
 
-            if (Physics.Raycast(position, raydirection, out hit, 10))
+            if (Physics.Raycast(position, raydirection, out hit, this.viewDistance, this.wallsLayer))
             {
                 GameObject go = hit.collider.gameObject;
 
@@ -134,6 +137,8 @@ public class Runner : MonoBehaviour
                 }
                 seeX = go.transform.position.x;
                 seeZ = go.transform.position.z;
+
+                Debug.DrawLine(position, position + raydirection * this.viewDistance, Color.red, 1f );
             }
             sensorData.Add(see);
             sensorData.Add(seeX);
@@ -146,8 +151,13 @@ public class Runner : MonoBehaviour
     // ============================================
     private void OnCollisionEnter(Collision other)
     {
-        this.isDead = true;
-        this.gameObject.SetActive(false);
+        Wall w = other.gameObject.GetComponent<Wall>();
+
+        if (w != null)
+        {
+            this.isDead = true;
+            this.gameObject.SetActive(false);
+        }
     }
 
     // ============================================
@@ -161,5 +171,6 @@ public class Runner : MonoBehaviour
         this.gameObject.SetActive(true);
         this.body.interpolation = RigidbodyInterpolation.None;
         this.body.MovePosition(startposition);
+        this.body.velocity = Vector3.zero;
     }
 }
