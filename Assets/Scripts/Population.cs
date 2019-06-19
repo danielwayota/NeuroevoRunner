@@ -5,8 +5,12 @@ namespace Done
 {
     public class Population : MonoBehaviour
     {
-        [Header("Runner prefab")]
+        [Header("Stuff")]
+        private WallSpawner wallSpawner;
+
+        [Header("Runners stuff")]
         public GameObject runnerPrefab;
+        public int targetCoins = 8;
 
         [Header("Population")]
         public int populationSize = 8;
@@ -17,11 +21,12 @@ namespace Done
 
         private Runner[] runnerPopulation;
 
-        private float time = 0;
-        private float checkTime = 1;
+        private float checkTime = 0;
+        private float checkTimeOut = 1;
         private float currentGenerationTime = 0;
 
         private int currentGeneration;
+
 
         // ========================================================
         void Start()
@@ -42,11 +47,25 @@ namespace Done
         // ========================================================
         void Update()
         {
-            this.time += Time.deltaTime;
+            this.checkTime += Time.deltaTime;
 
-            if (this.time > this.checkTime)
+            if (this.checkTime > this.checkTimeOut)
+            {
+                this.checkTime -= this.checkTimeOut;
+
+                if (this.IsEveryRunnerDead())
+                {
+                    this.AdvanceGeneration();
+                    this.currentGenerationTime = 0;
+                }
+            }
+
+            this.currentGenerationTime += Time.deltaTime;
+
+            if (this.currentGenerationTime > this.maxGenerationTime)
             {
                 this.AdvanceGeneration();
+                this.currentGenerationTime -= this.maxGenerationTime;
             }
         }
 
@@ -68,13 +87,13 @@ namespace Done
         // ========================================================
         void AdvanceGeneration()
         {
+            this.wallSpawner.Restart();
             this.currentGeneration++;
             // this.statusWindow.SetGenerationNumber(this.currentGeneration);
-            this.time -= this.maxGenerationTime;
 
             // Generate new population
             Genome[] newGenomes = new Genome[this.populationSize];
-            Runner[] parents = new Runner[2];
+            Genome[] parents = new Genome[2];
 
             for (int i = 0; i < this.populationSize; i++)
             {
@@ -91,7 +110,7 @@ namespace Done
                     // Calculate fitness
                     if (this.CalculateRunnerFitness(candidate) > dice)
                     {
-                        parents[parentCount] = candidate;
+                        parents[parentCount] = candidate.brain.GetGenome();
                         parentCount++;
                     }
                 }
@@ -99,8 +118,8 @@ namespace Done
                 if (parents.Length == 2)
                 {
                     // Crossover
-                    Genome g1 = parents[0].brain.GetGenome();
-                    Genome g2 = parents[1].brain.GetGenome();
+                    Genome g1 = parents[0];
+                    Genome g2 = parents[1];
 
                     Genome offspring = Genome.Crossover(g1, g2);
                     offspring.Mutate(0.05f, 10f);
@@ -124,8 +143,12 @@ namespace Done
         // ========================================================
         float CalculateRunnerFitness(Runner e)
         {
-            // TODO:
-            return 0.5f;
+            float points = (e.aliveTime / this.currentGenerationTime) * 0.75f;
+
+            float coinPoints = Mathf.Clamp01(e.coins / (float)this.targetCoins) * 0.25f;
+            points += coinPoints;
+
+            return Mathf.Pow(points, 2);
         }
     }
 }
