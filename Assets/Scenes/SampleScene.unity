@@ -276,8 +276,8 @@ MonoBehaviour:
   runnerPrefab: {fileID: 3205690480286135251, guid: 326d7e4d9a926484cbe3e239a43ccfef,
     type: 3}
   targetCoins: 8
-  populationSize: 8
-  maxGenerationTime: 50
+  populationSize: 64
+  maxGenerationTime: 60
   startPoint: {fileID: 2045400186}
 --- !u!4 &400879824
 Transform:
@@ -975,7 +975,7 @@ MonoBehaviour:
   - {fileID: 139552039}
   wallsHolder: {fileID: 830504624}
   spawnTime: 6
-  minSpawnTime: 2
+  minSpawnTime: 3
   spawnTimeReductionPercentage: 0.05
 --- !u!4 &1576494774
 Transform:

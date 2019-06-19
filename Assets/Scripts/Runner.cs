@@ -37,6 +37,8 @@ public class Runner : MonoBehaviour
 
     private Rigidbody body;
 
+    Vector3[] lookDirections;
+
 
     // ============================================
     void Start()
@@ -59,18 +61,27 @@ public class Runner : MonoBehaviour
             wx1
             wy1
 
+            seeLeft
+            wx
+            wy
+
+            seeRight
+            wx
+            wy
+
          */
         // Move to other place
         this.brain = Factory.Create()
-            .WithInput(11)
+            .WithInput(17)
             .WithLayer(4, LayerType.Tanh)
-            .WithLayer(2, LayerType.Tanh)
             .WithLayer(1, LayerType.Tanh)
             .Build();
 
         this.body = GetComponent<Rigidbody>();
 
         this.Restart(this.transform.position);
+
+        this.GenerateLookDirections();
     }
 
     // ============================================
@@ -90,6 +101,33 @@ public class Runner : MonoBehaviour
     }
 
     // ============================================
+    void GenerateLookDirections()
+    {
+        this.lookDirections = new Vector3[5];
+
+        Vector3 front = this.transform.forward;
+        float baseAngle = Mathf.Atan2(front.z, front.x);
+
+        int index = 0;
+        // Calculate the base angle and the offset for the three eyes
+        for (int i = -1; i <= 1; i++)
+        {
+            float angle = baseAngle + (this.fov * i);
+            Vector3 lookDir = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+
+            this.lookDirections[index] = lookDir;
+            index++;
+        }
+
+        // Left eye
+        this.lookDirections[index] = -this.transform.right;
+        index++;
+        // Right eye
+        this.lookDirections[index] = this.transform.right;
+        index++;
+    }
+
+    // ============================================
     float Decide()
     {
         List<float> sensorData = new List<float>();
@@ -100,18 +138,14 @@ public class Runner : MonoBehaviour
         sensorData.Add(position.x);
         sensorData.Add(position.z);
 
-        // Calculate the base angle and the offset for the three eyes
+        
         Vector3 front = this.transform.forward;
         float baseAngle = Mathf.Atan2(front.z, front.x);
 
         // Detect what each eye 'sees' and put the data in the sensor
         // If nothing is seen, just put 0
-        for (int i = -1; i <= 1; i++)
+        foreach (var lookDir in this.lookDirections)
         {
-            float angle = baseAngle + (this.fov * i);
-
-            Vector3 raydirection = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
-
             RaycastHit hit;
             // 'see' is the way to indicate the type of object the eye is seeing
             //  0: nothing
@@ -123,7 +157,8 @@ public class Runner : MonoBehaviour
             float seeX = 0;
             float seeZ = 0;
 
-            if (Physics.Raycast(position, raydirection, out hit, this.viewDistance, this.wallsLayer))
+            // Three front eyes
+            if (Physics.Raycast(position, lookDir, out hit, this.viewDistance, this.wallsLayer))
             {
                 GameObject go = hit.collider.gameObject;
 
@@ -135,10 +170,10 @@ public class Runner : MonoBehaviour
                 {
                     see = -1;
                 }
-                seeX = go.transform.position.x;
-                seeZ = go.transform.position.z;
+                seeX = hit.point.x;
+                seeZ = hit.point.z;
 
-                Debug.DrawLine(position, position + raydirection * this.viewDistance, Color.red, 1f );
+                Debug.DrawLine(position, position + lookDir * this.viewDistance, Color.red, 1f );
             }
             sensorData.Add(see);
             sensorData.Add(seeX);
