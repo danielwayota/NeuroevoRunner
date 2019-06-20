@@ -128,7 +128,7 @@ public class Population : MonoBehaviour
                 Genome g2 = parents[1];
 
                 Genome offspring = Genome.Crossover(g1, g2);
-                offspring.Mutate(0.05f, 10f);
+                offspring.Mutate(0.05f, 1f);
 
                 newGenomes[i] = offspring;
             }

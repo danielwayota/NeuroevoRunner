@@ -15,6 +15,8 @@ public class WallSpawner : MonoBehaviour
     public float minSpawnTime = 1f;
     public float spawnTimeReductionPercentage = 0.05f;
 
+    private float currentSpawnTime;
+
     private float time = 0f;
 
     // Random spawn point
@@ -26,6 +28,7 @@ public class WallSpawner : MonoBehaviour
     void Start()
     {
         this.time = this.spawnTime;
+        this.currentSpawnTime = this.spawnTime;
     }
 
     // ========================================
@@ -33,14 +36,17 @@ public class WallSpawner : MonoBehaviour
     {
         this.time += Time.deltaTime;
 
-        if (this.time > this.spawnTime)
+        if (this.time > this.currentSpawnTime)
         {
-            this.time -= this.spawnTime;
+            this.time -= this.currentSpawnTime;
 
             // this.SpawnInRandomPoint();
-            // this.SpawnAlternate();
-            this.SpawnSequential();
+            this.SpawnAlternate();
+            // this.SpawnSequential();
             this.wallCount++;
+
+            this.currentSpawnTime -= this.currentSpawnTime * this.spawnTimeReductionPercentage;
+            this.currentSpawnTime = Mathf.Max(this.currentSpawnTime, this.minSpawnTime);
         }
     }
 
@@ -97,6 +103,8 @@ public class WallSpawner : MonoBehaviour
     // ========================================
     public void Restart()
     {
+        this.currentSpawnTime = this.spawnTime;
+
         this.time = this.spawnTime;
         for (int i = 0; i < this.wallsHolder.childCount; i++)
         {
@@ -105,8 +113,8 @@ public class WallSpawner : MonoBehaviour
 
         this.wallCount = 0;
 
-        this.spawnTime = this.spawnTime - (this.spawnTime * this.spawnTimeReductionPercentage);
+        // this.spawnTime = this.spawnTime - (this.spawnTime * this.spawnTimeReductionPercentage);
 
-        this.spawnTime = Mathf.Max(this.spawnTime, this.minSpawnTime);
+        // this.spawnTime = Mathf.Max(this.spawnTime, this.minSpawnTime);
     }
 }

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4465785, g: 0.49641252, b: 0.574817, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -276,7 +276,7 @@ MonoBehaviour:
   runnerPrefab: {fileID: 3205690480286135251, guid: 326d7e4d9a926484cbe3e239a43ccfef,
     type: 3}
   targetCoins: 8
-  populationSize: 256
+  populationSize: 32
   startPoint: {fileID: 2045400186}
 --- !u!4 &400879824
 Transform:
@@ -975,7 +975,7 @@ MonoBehaviour:
   wallsHolder: {fileID: 830504624}
   spawnTime: 6
   minSpawnTime: 3
-  spawnTimeReductionPercentage: 0.05
+  spawnTimeReductionPercentage: 0.02
 --- !u!4 &1576494774
 Transform:
   m_ObjectHideFlags: 0

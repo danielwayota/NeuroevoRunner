@@ -73,11 +73,8 @@ public class Runner : MonoBehaviour
         // Move to other place
         this.brain = Factory.Create()
             .WithInput(17)
-            .WithLayer(16, LayerType.Tanh)
-            .WithLayer(8, LayerType.Tanh)
-            .WithLayer(4, LayerType.Tanh)
+            .WithLayer(2, LayerType.Tanh)
             .WithLayer(1, LayerType.Tanh)
-            .WithWeightBiasAmplitude(10f)
             .Build();
 
         this.body = GetComponent<Rigidbody>();
