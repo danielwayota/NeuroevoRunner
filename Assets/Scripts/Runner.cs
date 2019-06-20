@@ -73,8 +73,11 @@ public class Runner : MonoBehaviour
         // Move to other place
         this.brain = Factory.Create()
             .WithInput(17)
+            .WithLayer(16, LayerType.Tanh)
+            .WithLayer(8, LayerType.Tanh)
             .WithLayer(4, LayerType.Tanh)
             .WithLayer(1, LayerType.Tanh)
+            .WithWeightBiasAmplitude(10f)
             .Build();
 
         this.body = GetComponent<Rigidbody>();
@@ -87,6 +90,9 @@ public class Runner : MonoBehaviour
     // ============================================
     void Update()
     {
+        if (this.isDead)
+            return;
+
         this.aliveTime += Time.deltaTime;
 
         this.time += Time.deltaTime;
@@ -138,7 +144,7 @@ public class Runner : MonoBehaviour
         sensorData.Add(position.x);
         sensorData.Add(position.z);
 
-        
+
         Vector3 front = this.transform.forward;
         float baseAngle = Mathf.Atan2(front.z, front.x);
 

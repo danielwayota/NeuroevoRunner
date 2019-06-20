@@ -13,7 +13,6 @@ public class Population : MonoBehaviour
 
     [Header("Population")]
     public int populationSize = 8;
-    public float maxGenerationTime = 10f;
 
     [Header("Map points")]
     public Transform startPoint;
@@ -47,6 +46,7 @@ public class Population : MonoBehaviour
     void Update()
     {
         this.checkTime += Time.deltaTime;
+        this.currentGenerationTime += Time.deltaTime;
 
         if (this.checkTime > this.checkTimeOut)
         {
@@ -57,14 +57,6 @@ public class Population : MonoBehaviour
                 this.AdvanceGeneration();
                 this.currentGenerationTime = 0;
             }
-        }
-
-        this.currentGenerationTime += Time.deltaTime;
-
-        if (this.currentGenerationTime > this.maxGenerationTime)
-        {
-            this.AdvanceGeneration();
-            this.currentGenerationTime -= this.maxGenerationTime;
         }
     }
 
@@ -94,6 +86,17 @@ public class Population : MonoBehaviour
         Genome[] newGenomes = new Genome[this.populationSize];
         Genome[] parents = new Genome[2];
 
+        // Get all the fitness normalized
+        float[] fitnessList = new float[this.populationSize];
+
+        for (int i = 0; i < this.populationSize; i++)
+        {
+            float normalizedFitness = this.runnerPopulation[i].aliveTime / this.currentGenerationTime;
+
+            fitnessList[i] = Mathf.Pow(normalizedFitness, 2);
+        }
+
+        // New population
         for (int i = 0; i < this.populationSize; i++)
         {
             int parentCount = 0;
@@ -102,12 +105,16 @@ public class Population : MonoBehaviour
             while (parentCount < 2 && safety < 10000)
             {
                 safety++;
+
                 int index = Random.Range(0, this.populationSize);
+
                 Runner candidate = this.runnerPopulation[index];
+                float candidateFitness = fitnessList[index];
+
                 float dice = Random.Range(0f, 1f);
 
                 // Calculate fitness
-                if (this.CalculateRunnerFitness(candidate) > dice)
+                if (candidateFitness > dice)
                 {
                     parents[parentCount] = candidate.brain.GetGenome();
                     parentCount++;
@@ -137,16 +144,5 @@ public class Population : MonoBehaviour
             this.runnerPopulation[i].brain.SetGenome(newGenomes[i]);
             this.runnerPopulation[i].Restart(this.startPoint.position);
         }
-    }
-
-    // ========================================================
-    float CalculateRunnerFitness(Runner e)
-    {
-        float points = (e.aliveTime / this.currentGenerationTime) * 0.75f;
-
-        float coinPoints = Mathf.Clamp01(e.coins / (float)this.targetCoins) * 0.25f;
-        points += coinPoints;
-
-        return Mathf.Pow(points, 2);
     }
 }

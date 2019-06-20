@@ -17,12 +17,15 @@ public class WallSpawner : MonoBehaviour
 
     private float time = 0f;
 
+    // Random spawn point
     private int lastRandomSpawnIndex = -1;
+
+    private int wallCount;
 
     // ========================================
     void Start()
     {
-        this.time = this.spawnTime;    
+        this.time = this.spawnTime;
     }
 
     // ========================================
@@ -34,9 +37,40 @@ public class WallSpawner : MonoBehaviour
         {
             this.time -= this.spawnTime;
 
-            var pos = this.GetRandomSpawnPoint();
-            this.SpawnWall(pos);
+            // this.SpawnInRandomPoint();
+            // this.SpawnAlternate();
+            this.SpawnSequential();
+            this.wallCount++;
         }
+    }
+
+    // ========================================
+    void SpawnAlternate()
+    {
+        if (this.wallCount % 2 == 0)
+        {
+            this.SpawnWall(this.spawnPoints[1].position);
+        }
+        else
+        {
+            this.SpawnWall(this.spawnPoints[0].position);
+            this.SpawnWall(this.spawnPoints[2].position);
+        }
+    }
+
+    // ========================================
+    void SpawnSequential()
+    {
+        int index = this.wallCount % this.spawnPoints.Length;
+
+        this.SpawnWall(this.spawnPoints[index].position);
+    }
+
+    // ========================================
+    void SpawnInRandomPoint()
+    {
+        var pos = this.GetRandomSpawnPoint();
+        this.SpawnWall(pos);
     }
 
     // ========================================
@@ -68,6 +102,8 @@ public class WallSpawner : MonoBehaviour
         {
             Destroy(this.wallsHolder.GetChild(i).gameObject);
         }
+
+        this.wallCount = 0;
 
         this.spawnTime = this.spawnTime - (this.spawnTime * this.spawnTimeReductionPercentage);
 
